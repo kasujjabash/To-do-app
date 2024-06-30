@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todo/constants/hive/hive_constants.dart';
 import 'package:todo/controllers/task_controller.dart';
 import 'package:todo/models/hive/task_module.dart';
+import 'package:todo/screens/calender.dart';
 
 import '../components/tiles/task_tile.dart';
 import '../components/widgets/my_alert_dialog.dart';
@@ -32,15 +33,22 @@ class _HomeState extends State<Home> {
                   onTap: () {
                     showDialog(
                       context: context,
-                      builder: (context) => MyAlertDialog(
-                        
-                      ),
+                      builder: (context) => const MyAlertDialog(),
                     );
                   },
                   child: const Icon(Icons.add),
                 ),
                 const SizedBox(width: 20),
-                const Icon(Icons.calendar_month_outlined),
+                GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Calender(),
+                        ),
+                      );
+                    },
+                    child: const Icon(Icons.calendar_month_outlined)),
               ],
             ),
           ),
@@ -65,26 +73,59 @@ class _HomeState extends State<Home> {
                     valueListenable: taskModueBox.listenable(),
                     builder: (context, box, widget) {
                       List<TaskModule> taskList = box.values.toList();
-                      return ListView.builder(
-                        itemCount: taskList.length,
-                        itemBuilder: (context, index) {
-                          TaskModule task = taskList[index];
 
-                          //return the task tile
-                          return TaskTile(
-                            editTapped: (p0) {},
-                            deleteTapped: (contex) {
-                              taskControl.deleteTask(
-                                  index); // deleting a specific task
-                            },
-                            onChanged: (value) =>
-                                taskControl.checkBoxTapped(value, index),
-                            value: taskControl.taskCompleted,
-                            title: task.taskTitle,
-                            subtitle: task.taskSubTitle,
-                          );
-                        },
-                      );
+                      return taskList.isEmpty
+                          ? Expanded(
+                              child: Center(
+                                child: Column(
+                                  // crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      "Lets get started",
+                                      style: TextStyle(
+                                          fontSize: 25,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) =>
+                                              const MyAlertDialog(),
+                                        );
+                                      },
+                                      child: const Text(
+                                        "Create task",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: taskList.length,
+                              itemBuilder: (context, index) {
+                                TaskModule task = taskList[index];
+
+                                //return the task tile
+                                return TaskTile(
+                                  editTapped: (p0) {},
+                                  deleteTapped: (contex) {
+                                    taskControl.deleteTask(
+                                        index); // deleting a specific task
+                                  },
+                                  onChanged: (value) =>
+                                      taskControl.checkBoxTapped(value, index),
+                                  value: taskControl.taskCompleted,
+                                  title: task.taskTitle,
+                                  subtitle: task.taskSubTitle,
+                                );
+                              },
+                            );
                     },
                   ),
                 ),
